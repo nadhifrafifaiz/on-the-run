@@ -70,6 +70,32 @@ export const conditionEnum = pgEnum("condition", [
 ]);
 export const distanceLabelEnum = pgEnum("distance_label", ["5K", "10K", "HM", "FM", "other"]);
 
+export const timeOfDayEnum = pgEnum("time_of_day", [
+  "dawn",
+  "morning",
+  "day",
+  "afternoon",
+  "evening",
+  "night",
+]);
+export const terrainEnum = pgEnum("terrain", [
+  "flat",
+  "rolling",
+  "hilly",
+  "mountainous",
+  "mixed",
+  "treadmill",
+  "track",
+]);
+export const weatherEnum = pgEnum("weather", [
+  "sunny",
+  "cloudy",
+  "rainy",
+  "hot",
+  "cold",
+  "windy",
+]);
+
 // -------------------- Base column helpers --------------------
 // FK to auth.users(id) ON DELETE CASCADE is added by the supplementary migration.
 const userFk = () => uuid("user_id").notNull();
@@ -288,6 +314,9 @@ export const activities = pgTable(
     }),
     effortDistanceM: integer("effort_distance_m"),
     zoneSnapshot: jsonb("zone_snapshot"),
+    timeOfDay: timeOfDayEnum("time_of_day"),
+    terrain: terrainEnum("terrain"),
+    weather: weatherEnum("weather"),
     extraMetrics: jsonb("extra_metrics"),
     screenshotPaths: text("screenshot_paths").array(),
     createdAt: createdAt(),

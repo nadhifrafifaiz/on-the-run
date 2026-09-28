@@ -15,6 +15,13 @@
       "when": 1790317434024,
       "tag": "0001_auth_and_cyclic_fks",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790611042207,
+      "tag": "0002_loose_leopardon",
+      "breakpoints": true
     }
   ]
 }
