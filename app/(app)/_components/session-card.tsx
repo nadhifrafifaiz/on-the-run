@@ -8,6 +8,7 @@ import {
   fmtSport,
   SPORT_STYLES,
 } from "@/lib/utils/format";
+import { SessionPeek } from "./session-peek";
 
 type Props = {
   data: HydratedSession;
@@ -108,6 +109,8 @@ export function SessionCard({ data, compact = false, hideEdit = false, phaseName
           ) : null}
         </dl>
       )}
+
+      {compact && blocks.length > 0 ? <SessionPeek data={data} /> : null}
 
       {!compact && blocks.length > 0 ? (
         <ul className="mt-3 space-y-2 border-t border-zinc-100 pt-3 dark:border-zinc-800">
