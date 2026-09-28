@@ -51,7 +51,7 @@ export function SessionPeek({ data }: Props) {
         }}
         className="m-0 mt-auto w-full max-w-lg rounded-t-2xl p-0 backdrop:bg-black/40 sm:m-auto sm:rounded-2xl"
       >
-        <div className="max-h-[80vh] overflow-y-auto bg-white dark:bg-zinc-900">
+        <div className="max-h-[80vh] overflow-y-auto bg-white text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
           <header className="sticky top-0 flex items-start justify-between gap-3 border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-1.5">
