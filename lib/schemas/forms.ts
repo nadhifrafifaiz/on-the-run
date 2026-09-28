@@ -10,7 +10,10 @@ import {
   setStatusZ,
   sourceZ,
   sportZ,
+  terrainZ,
+  timeOfDayZ,
   unitsZ,
+  weatherZ,
   weekStartZ,
 } from "./enums";
 
@@ -153,6 +156,9 @@ export const activityLogInputZ = z.object({
   source: sourceZ.default("manual"),
   plannedSessionId: z.string().uuid().nullable().optional(),
   effortDistanceM: z.number().int().positive().nullable().optional(),
+  timeOfDay: timeOfDayZ.nullable().optional(),
+  terrain: terrainZ.nullable().optional(),
+  weather: weatherZ.nullable().optional(),
   extraMetrics: z.record(z.string(), z.unknown()).nullable().optional(),
   screenshotPaths: z.array(z.string()).nullable().optional(),
   run: runMetricsInputZ.nullable().optional(),

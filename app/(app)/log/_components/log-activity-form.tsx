@@ -25,6 +25,9 @@ export type LogFormPrefill = {
   notes?: string | null;
   plannedSessionId?: string | null;
   source?: "manual" | "json" | "mcp" | "notion";
+  timeOfDay?: string | null;
+  terrain?: string | null;
+  weather?: string | null;
   run?: {
     avgPaceSecPerKm?: number | null;
     cadenceSpm?: number | null;
@@ -98,6 +101,37 @@ const FEELS = [
   { value: "okay", label: "Okay" },
   { value: "tough", label: "Tough" },
   { value: "bad", label: "Bad" },
+] as const;
+
+const TIME_OF_DAY = [
+  { value: "", label: "—" },
+  { value: "dawn", label: "Subuh" },
+  { value: "morning", label: "Pagi" },
+  { value: "day", label: "Siang" },
+  { value: "afternoon", label: "Sore" },
+  { value: "evening", label: "Petang" },
+  { value: "night", label: "Malam" },
+] as const;
+
+const TERRAINS = [
+  { value: "", label: "—" },
+  { value: "flat", label: "Datar" },
+  { value: "rolling", label: "Bergelombang" },
+  { value: "hilly", label: "Berbukit" },
+  { value: "mountainous", label: "Pegunungan" },
+  { value: "mixed", label: "Campuran" },
+  { value: "treadmill", label: "Treadmill" },
+  { value: "track", label: "Lintasan" },
+] as const;
+
+const WEATHERS = [
+  { value: "", label: "—" },
+  { value: "sunny", label: "Cerah" },
+  { value: "cloudy", label: "Mendung" },
+  { value: "rainy", label: "Hujan" },
+  { value: "hot", label: "Panas" },
+  { value: "cold", label: "Dingin" },
+  { value: "windy", label: "Berangin" },
 ] as const;
 
 // "1:23:45" | "23:45" → seconds. Empty → null.
@@ -218,6 +252,9 @@ export function LogActivityForm({
             plannedSessionId: str(fd, "plannedSessionId"),
             draftId: draftId ?? null,
             effortDistanceM: null,
+            timeOfDay: (str(fd, "timeOfDay") as ActivityLogInput["timeOfDay"]) ?? null,
+            terrain: (str(fd, "terrain") as ActivityLogInput["terrain"]) ?? null,
+            weather: (str(fd, "weather") as ActivityLogInput["weather"]) ?? null,
             items: showItems
               ? items
                   .filter((i) => i.name.trim())
@@ -482,6 +519,66 @@ export function LogActivityForm({
               {FEELS.map((f) => (
                 <option key={f.value} value={f.value}>
                   {f.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      {/* Kondisi */}
+      <fieldset className="space-y-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+        <legend className="px-1 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+          Kondisi
+        </legend>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label htmlFor="timeOfDay" className="mb-1 block text-xs text-zinc-500">
+              Waktu
+            </label>
+            <select
+              id="timeOfDay"
+              name="timeOfDay"
+              defaultValue={prefill?.timeOfDay ?? ""}
+              className="w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            >
+              {TIME_OF_DAY.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="terrain" className="mb-1 block text-xs text-zinc-500">
+              Medan
+            </label>
+            <select
+              id="terrain"
+              name="terrain"
+              defaultValue={prefill?.terrain ?? ""}
+              className="w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            >
+              {TERRAINS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="weather" className="mb-1 block text-xs text-zinc-500">
+              Cuaca
+            </label>
+            <select
+              id="weather"
+              name="weather"
+              defaultValue={prefill?.weather ?? ""}
+              className="w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            >
+              {WEATHERS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
                 </option>
               ))}
             </select>

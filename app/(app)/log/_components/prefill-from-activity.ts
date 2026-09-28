@@ -23,6 +23,9 @@ export function prefillFromActivity(a: HydratedActivity): LogFormPrefill {
     notes: activity.notes,
     plannedSessionId: activity.plannedSessionId,
     source: activity.source,
+    timeOfDay: activity.timeOfDay,
+    terrain: activity.terrain,
+    weather: activity.weather,
     run: rm
       ? {
           avgPaceSecPerKm: rm.avgPaceSecPerKm,

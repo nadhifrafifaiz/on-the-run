@@ -40,6 +40,32 @@ export const unitsZ = z.enum(["metric", "imperial"]);
 export const weekStartZ = z.enum(["monday", "sunday"]);
 export const conditionZ = z.enum(["normal", "sick", "injured", "fatigued", "other"]);
 
+export const timeOfDayZ = z.enum([
+  "dawn",
+  "morning",
+  "day",
+  "afternoon",
+  "evening",
+  "night",
+]);
+export const terrainZ = z.enum([
+  "flat",
+  "rolling",
+  "hilly",
+  "mountainous",
+  "mixed",
+  "treadmill",
+  "track",
+]);
+export const weatherZ = z.enum([
+  "sunny",
+  "cloudy",
+  "rainy",
+  "hot",
+  "cold",
+  "windy",
+]);
+
 // YYYY-MM-DD
 export const isoDateZ = z
   .string()

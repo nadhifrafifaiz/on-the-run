@@ -49,6 +49,37 @@ export default async function ActivityDetailPage({ params }: { params: Params })
     bad: "Bad",
   };
 
+  const timeOfDayLabel: Record<string, string> = {
+    dawn: "Subuh",
+    morning: "Pagi",
+    day: "Siang",
+    afternoon: "Sore",
+    evening: "Petang",
+    night: "Malam",
+  };
+  const terrainLabel: Record<string, string> = {
+    flat: "Datar",
+    rolling: "Bergelombang",
+    hilly: "Berbukit",
+    mountainous: "Pegunungan",
+    mixed: "Campuran",
+    treadmill: "Treadmill",
+    track: "Lintasan",
+  };
+  const weatherLabel: Record<string, string> = {
+    sunny: "Cerah",
+    cloudy: "Mendung",
+    rainy: "Hujan",
+    hot: "Panas",
+    cold: "Dingin",
+    windy: "Berangin",
+  };
+  const conditionBadges = [
+    activity.timeOfDay ? timeOfDayLabel[activity.timeOfDay] ?? activity.timeOfDay : null,
+    activity.terrain ? terrainLabel[activity.terrain] ?? activity.terrain : null,
+    activity.weather ? weatherLabel[activity.weather] ?? activity.weather : null,
+  ].filter((v): v is string => Boolean(v));
+
   return (
     <div className="space-y-6">
       <Link
@@ -78,6 +109,18 @@ export default async function ActivityDetailPage({ params }: { params: Params })
           {activity.title ?? fmtSport(activity.sport)}
         </h1>
         <p className="text-sm text-zinc-500">{fmtTanggalLengkap(activity.date)}</p>
+        {conditionBadges.length > 0 ? (
+          <ul className="flex flex-wrap gap-1.5 pt-1">
+            {conditionBadges.map((b) => (
+              <li
+                key={b}
+                className="inline-flex rounded-full border border-zinc-200 px-2 py-0.5 text-[10px] font-medium text-zinc-600 dark:border-zinc-700 dark:text-zinc-300"
+              >
+                {b}
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </header>
 
       {/* Primary metrics grid */}
