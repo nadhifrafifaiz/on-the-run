@@ -26,6 +26,7 @@ import {
 import type { PlannedSessionInput } from "@/lib/schemas/forms";
 import { logActivity, updateActivityLog, deleteActivity } from "@/lib/services/activities";
 import { createRace, updateRace, type RaceInput } from "@/lib/services/races";
+import { createApiToken, revokeApiToken } from "@/lib/services/api-tokens";
 import { createDraft, discardDraft } from "@/lib/services/drafts";
 import { activityImportZ } from "@/lib/schemas/activity-import";
 import { normalizePlanImport } from "@/lib/schemas/normalize";
@@ -443,6 +444,36 @@ export async function updateRaceAction(
     revalidatePath("/races");
     revalidatePath(`/races/${id}`);
     return { ok: true, data: null, message: "Race disimpan." };
+  } catch (e) {
+    return normalizeError(e);
+  }
+}
+
+// -------------------- API tokens (widgets) --------------------
+
+export async function createApiTokenAction(
+  name: string,
+): Promise<ActionResult<{ token: string; prefix: string }>> {
+  try {
+    const userId = await requireUserId();
+    const { token, row } = await createApiToken(userId, name);
+    revalidatePath("/settings");
+    return {
+      ok: true,
+      data: { token, prefix: row.tokenPrefix },
+      message: "Token dibuat. Salin sekarang — tidak akan ditampilkan lagi.",
+    };
+  } catch (e) {
+    return normalizeError(e);
+  }
+}
+
+export async function revokeApiTokenAction(id: string): Promise<ActionResult> {
+  try {
+    const userId = await requireUserId();
+    await revokeApiToken(userId, id);
+    revalidatePath("/settings");
+    return { ok: true, data: null, message: "Token dicabut." };
   } catch (e) {
     return normalizeError(e);
   }

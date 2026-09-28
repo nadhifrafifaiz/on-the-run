@@ -1,10 +1,13 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getProfile } from "@/lib/services/profiles";
 import { listMetricsHistory } from "@/lib/services/metrics";
+import { listApiTokens } from "@/lib/services/api-tokens";
 import { fmtTanggalPendek } from "@/lib/utils/format";
 import { ProfileForm } from "./profile-form";
 import { AddMetricsForm } from "./add-metrics-form";
+import { ApiTokensSection } from "./api-tokens-section";
 
 export const metadata = { title: "Setelan · on-the-run" };
 export const dynamic = "force-dynamic";
@@ -16,10 +19,16 @@ export default async function SettingsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [profile, metrics] = await Promise.all([
+  const [profile, metrics, tokens] = await Promise.all([
     getProfile(user.id),
     listMetricsHistory(user.id),
+    listApiTokens(user.id),
   ]);
+
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+  const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  const baseUrl = `${proto}://${host}`;
 
   return (
     <div className="space-y-8">
@@ -84,6 +93,23 @@ export default async function SettingsPage() {
         </div>
       </section>
 
+      <section aria-labelledby="tokens" className="space-y-3">
+        <h2 id="tokens" className="text-sm font-semibold uppercase tracking-wider text-zinc-500">
+          Widget & API
+        </h2>
+        <ApiTokensSection
+          tokens={tokens.map((t) => ({
+            id: t.id,
+            name: t.name,
+            tokenPrefix: t.tokenPrefix,
+            createdAt: t.createdAt,
+            lastUsedAt: t.lastUsedAt,
+            revokedAt: t.revokedAt,
+          }))}
+          baseUrl={baseUrl}
+        />
+      </section>
+
       <section
         aria-labelledby="lain"
         className="space-y-2 rounded-lg border border-zinc-200 p-4 text-sm text-zinc-500 dark:border-zinc-800"
@@ -92,7 +118,6 @@ export default async function SettingsPage() {
           Nanti
         </h2>
         <ul className="list-disc space-y-1 pl-5">
-          <li>Widget token (M3)</li>
           <li>Connect Claude / MCP (M4)</li>
           <li>Export semua data & hapus akun (M5)</li>
         </ul>

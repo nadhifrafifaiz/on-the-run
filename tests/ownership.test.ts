@@ -17,6 +17,12 @@ import { bestEfforts, daySessions, weeklySummary } from "@/lib/services/stats";
 import { createDraft, discardDraft, getDraft, listPending } from "@/lib/services/drafts";
 import { createRace, getRace, listRaces, updateRace } from "@/lib/services/races";
 import { deleteAllUserData } from "@/lib/services/account";
+import {
+  createApiToken,
+  listApiTokens,
+  revokeApiToken,
+  verifyApiToken,
+} from "@/lib/services/api-tokens";
 import { ServiceError } from "@/lib/utils/errors";
 
 let userA: string;
@@ -280,6 +286,39 @@ describe("stats", () => {
     // No B rows should sneak in.
     const aDays = await daySessions(userA, "2026-11-09", "2026-11-15");
     for (const row of aDays) expect(row.session.userId).toBe(userA);
+  });
+});
+
+describe("api-tokens", () => {
+  it("verifyApiToken resolves to owner userId", async () => {
+    const { token } = await createApiToken(userA, "widget-A");
+    expect(await verifyApiToken(token)).toBe(userA);
+  });
+
+  it("B cannot revoke A's token", async () => {
+    const { row } = await createApiToken(userA, "another-A");
+    await expect(revokeApiToken(userB, row.id)).rejects.toThrow(ServiceError);
+    // Still verifies as valid for A.
+    const stillValid = (await listApiTokens(userA)).find((t) => t.id === row.id);
+    expect(stillValid?.revokedAt).toBeNull();
+  });
+
+  it("revoked tokens no longer verify", async () => {
+    const { token, row } = await createApiToken(userA, "to-revoke");
+    await revokeApiToken(userA, row.id);
+    expect(await verifyApiToken(token)).toBeNull();
+  });
+
+  it("garbage tokens fail without leaking", async () => {
+    expect(await verifyApiToken("")).toBeNull();
+    expect(await verifyApiToken("bogus_xxxx")).toBeNull();
+    expect(await verifyApiToken("otr_notreal")).toBeNull();
+  });
+
+  it("A cannot see B's tokens", async () => {
+    await createApiToken(userB, "widget-B");
+    const aTokens = await listApiTokens(userA);
+    for (const t of aTokens) expect(t.userId).toBe(userA);
   });
 });
 
