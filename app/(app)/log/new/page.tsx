@@ -3,7 +3,8 @@ import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { listPending } from "@/lib/services/drafts";
 import { hydratedSessions } from "@/lib/services/stats";
-import { toIsoDate } from "@/lib/utils/dates";
+import { getProfile } from "@/lib/services/profiles";
+import { todayInTz } from "@/lib/utils/dates";
 import { fmtHari, fmtSport, fmtTanggalPendek } from "@/lib/utils/format";
 import { AiWorkflowStepper } from "@/app/_components/ai-workflow";
 import { ACTIVITY_PROMPT } from "@/lib/prompts";
@@ -19,7 +20,8 @@ export default async function LogNewPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const today = toIsoDate(new Date());
+  const profile = await getProfile(user.id);
+  const today = todayInTz(profile?.timezone ?? "Asia/Jakarta");
   const [drafts, todaySessions] = await Promise.all([
     listPending(user.id),
     hydratedSessions(user.id, today, today),

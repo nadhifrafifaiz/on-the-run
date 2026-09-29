@@ -2,8 +2,9 @@ import { notFound, redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getDraft } from "@/lib/services/drafts";
 import { hydratedSessions } from "@/lib/services/stats";
+import { getProfile } from "@/lib/services/profiles";
 import { activityImportZ } from "@/lib/schemas/activity-import";
-import { toIsoDate } from "@/lib/utils/dates";
+import { toIsoDate, todayInTz } from "@/lib/utils/dates";
 import { LogActivityForm } from "../../_components/log-activity-form";
 import { prefillFromActivityImport } from "../../_components/prefill-from-import";
 import { DiscardDraftButton } from "./discard-draft-button";
@@ -46,7 +47,8 @@ export default async function LogReviewDraftPage({ params }: { params: Params })
   }
 
   const prefill = prefillFromActivityImport(parsed.data);
-  const today = toIsoDate(new Date());
+  const profile = await getProfile(user.id);
+  const today = todayInTz(profile?.timezone ?? "Asia/Jakarta");
 
   // Find candidate planned sessions near the draft date.
   const centerDate = new Date(parsed.data.date);

@@ -2,7 +2,7 @@ import { userIdFromRequest } from "@/lib/api/auth";
 import { fail, ok } from "@/lib/api/response";
 import { hydratedSessions, weeklySummary } from "@/lib/services/stats";
 import { getProfile } from "@/lib/services/profiles";
-import { addDays, toIsoDate, weekStartOf } from "@/lib/utils/dates";
+import { addDays, todayInTz, weekStartOf } from "@/lib/utils/dates";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +12,7 @@ export async function GET(req: Request) {
 
   const profile = await getProfile(userId);
   const weekStart = (profile?.weekStart ?? "monday") as "monday" | "sunday";
-  const today = toIsoDate(new Date());
+  const today = todayInTz(profile?.timezone ?? "Asia/Jakarta");
   const start = weekStartOf(today, weekStart);
   const end = addDays(start, 6);
 

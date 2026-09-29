@@ -3,7 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getHydratedActivity } from "@/lib/services/activities";
 import { hydratedSessions } from "@/lib/services/stats";
-import { toIsoDate } from "@/lib/utils/dates";
+import { getProfile } from "@/lib/services/profiles";
+import { toIsoDate, todayInTz } from "@/lib/utils/dates";
 import { LogActivityForm } from "@/app/(app)/log/_components/log-activity-form";
 import { prefillFromActivity } from "@/app/(app)/log/_components/prefill-from-activity";
 
@@ -40,7 +41,8 @@ export default async function EditActivityPage({ params }: { params: Params }) {
       sport: s.session.sport,
     }));
 
-  const today = toIsoDate(new Date());
+  const profile = await getProfile(user.id);
+  const today = todayInTz(profile?.timezone ?? "Asia/Jakarta");
 
   return (
     <div className="space-y-6">

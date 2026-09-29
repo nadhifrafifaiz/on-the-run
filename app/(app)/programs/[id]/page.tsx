@@ -5,7 +5,8 @@ import { countProgramSessions, getProgram, listPrograms } from "@/lib/services/p
 import { hydratedSessionsForProgram } from "@/lib/services/stats";
 import { getRace } from "@/lib/services/races";
 import { listPhases, phaseAt } from "@/lib/services/phases";
-import { toIsoDate } from "@/lib/utils/dates";
+import { getProfile } from "@/lib/services/profiles";
+import { todayInTz } from "@/lib/utils/dates";
 import { fmtTanggalPendek } from "@/lib/utils/format";
 import { computeProgramWeeks, fmtCountdown } from "@/lib/utils/program-weeks";
 import { ProgramActions } from "./program-actions";
@@ -33,7 +34,8 @@ export default async function ProgramDetailPage({ params }: { params: Params }) 
   const program = await getProgram(user.id, id);
   if (!program) notFound();
 
-  const today = toIsoDate(new Date());
+  const profile = await getProfile(user.id);
+  const today = todayInTz(profile?.timezone ?? "Asia/Jakarta");
 
   const [programSessions, phases, sessionCounts, otherActiveMain, goalRace, currentPhase] =
     await Promise.all([

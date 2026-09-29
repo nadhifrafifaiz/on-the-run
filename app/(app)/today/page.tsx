@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { hydratedSessions, weeklySummary, activitiesByDate } from "@/lib/services/stats";
 import { listPending } from "@/lib/services/drafts";
-import { toIsoDate, weekStartOf } from "@/lib/utils/dates";
+import { getProfile } from "@/lib/services/profiles";
+import { todayInTz, weekStartOf } from "@/lib/utils/dates";
 import { fmtDistance, fmtHari, fmtTanggalLengkap } from "@/lib/utils/format";
 import { SessionCard } from "../_components/session-card";
 import { EmptyState } from "@/app/_components/empty-state";
@@ -18,8 +19,9 @@ export default async function TodayPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const today = toIsoDate(new Date());
-  const monday = weekStartOf(today, "monday");
+  const profile = await getProfile(user.id);
+  const today = todayInTz(profile?.timezone ?? "Asia/Jakarta");
+  const monday = weekStartOf(today, (profile?.weekStart ?? "monday") as "monday" | "sunday");
 
   const [sessions, summary, activities, drafts] = await Promise.all([
     hydratedSessions(user.id, today, today),

@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { hydratedSessions } from "@/lib/services/stats";
-import { toIsoDate } from "@/lib/utils/dates";
+import { getProfile } from "@/lib/services/profiles";
+import { toIsoDate, todayInTz } from "@/lib/utils/dates";
 import { LogActivityForm } from "../../_components/log-activity-form";
 import { prefillFromPlannedSession } from "../../_components/prefill-from-planned";
 
@@ -18,7 +19,8 @@ export default async function LogReviewNewPage({ searchParams }: { searchParams:
   if (!user) redirect("/login");
 
   const { plannedSessionId } = await searchParams;
-  const today = toIsoDate(new Date());
+  const profile = await getProfile(user.id);
+  const today = todayInTz(profile?.timezone ?? "Asia/Jakarta");
 
   // Give options for today ± 2 days.
   const from = new Date();

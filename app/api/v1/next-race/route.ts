@@ -1,7 +1,8 @@
 import { userIdFromRequest } from "@/lib/api/auth";
 import { fail, ok } from "@/lib/api/response";
+import { getProfile } from "@/lib/services/profiles";
 import { upcomingRaces } from "@/lib/services/races";
-import { daysBetween, toIsoDate } from "@/lib/utils/dates";
+import { daysBetween, todayInTz } from "@/lib/utils/dates";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +10,8 @@ export async function GET(req: Request) {
   const userId = await userIdFromRequest(req);
   if (!userId) return fail(401, "UNAUTHORIZED", "Token tidak valid");
 
-  const today = toIsoDate(new Date());
+  const profile = await getProfile(userId);
+  const today = todayInTz(profile?.timezone ?? "Asia/Jakarta");
   const upcoming = await upcomingRaces(userId, today);
   const race = upcoming[0] ?? null;
 

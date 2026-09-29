@@ -6,7 +6,7 @@ import {
   weeklySummary,
 } from "@/lib/services/stats";
 import { getProfile } from "@/lib/services/profiles";
-import { toIsoDate, weekStartOf } from "@/lib/utils/dates";
+import { todayInTz, weekStartOf } from "@/lib/utils/dates";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,7 @@ export async function GET(req: Request) {
 
   const profile = await getProfile(userId);
   const weekStart = (profile?.weekStart ?? "monday") as "monday" | "sunday";
-  const today = toIsoDate(new Date());
+  const today = todayInTz(profile?.timezone ?? "Asia/Jakarta");
   const monday = weekStartOf(today, weekStart);
 
   const [sessions, activitiesMap, week] = await Promise.all([

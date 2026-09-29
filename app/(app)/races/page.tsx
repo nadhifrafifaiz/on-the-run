@@ -3,8 +3,9 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { listRaces } from "@/lib/services/races";
 import { bestEfforts } from "@/lib/services/stats";
+import { getProfile } from "@/lib/services/profiles";
 import { fmtDuration, fmtTanggalPendek } from "@/lib/utils/format";
-import { toIsoDate } from "@/lib/utils/dates";
+import { todayInTz } from "@/lib/utils/dates";
 
 export const metadata = { title: "Race · on-the-run" };
 export const dynamic = "force-dynamic";
@@ -30,8 +31,12 @@ export default async function RacesPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [races, prs] = await Promise.all([listRaces(user.id), bestEfforts(user.id)]);
-  const today = toIsoDate(new Date());
+  const [races, prs, profile] = await Promise.all([
+    listRaces(user.id),
+    bestEfforts(user.id),
+    getProfile(user.id),
+  ]);
+  const today = todayInTz(profile?.timezone ?? "Asia/Jakarta");
   const upcoming = races.filter((r) => r.date >= today && r.status === "planned");
   const past = races.filter((r) => r.date < today || r.status !== "planned");
 

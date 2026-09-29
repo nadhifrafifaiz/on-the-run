@@ -7,13 +7,13 @@ import {
   weeklySummary,
 } from "@/lib/services/stats";
 import { getWeekNote } from "@/lib/services/week-notes";
-import { addDays, weekStartOf } from "@/lib/utils/dates";
+import { getProfile } from "@/lib/services/profiles";
+import { addDays, todayInTz, weekStartOf } from "@/lib/utils/dates";
 import {
   fmtDistance,
   fmtHari,
   fmtTanggalPendek,
   fmtTanggalLengkap,
-  isToday,
 } from "@/lib/utils/format";
 import { SessionCard } from "../../_components/session-card";
 import { DuplicateWeekButton } from "./duplicate-week-button";
@@ -40,12 +40,14 @@ export default async function WeekPage({ params }: { params: Params }) {
   const prevWeek = addDays(weekStart, -7);
   const nextWeek = addDays(weekStart, 7);
 
-  const [sessions, activities, summary, note] = await Promise.all([
+  const [sessions, activities, summary, note, profile] = await Promise.all([
     hydratedSessions(user.id, weekStart, weekEnd),
     activitiesByDate(user.id, weekStart, weekEnd),
     weeklySummary(user.id, weekStart),
     getWeekNote(user.id, weekStart),
+    getProfile(user.id),
   ]);
+  const today = todayInTz(profile?.timezone ?? "Asia/Jakarta");
 
   // Group sessions by ISO date.
   const sessionsByDate = new Map<string, typeof sessions>();
@@ -128,12 +130,12 @@ export default async function WeekPage({ params }: { params: Params }) {
         {days.map((d) => {
           const daySessions = sessionsByDate.get(d) ?? [];
           const dayActivities = activities.get(d) ?? [];
-          const today = isToday(d);
+          const isDayToday = d === today;
           return (
             <div
               key={d}
               className={`rounded-lg border p-3 ${
-                today
+                isDayToday
                   ? "border-zinc-900 dark:border-zinc-100"
                   : "border-zinc-200 dark:border-zinc-800"
               }`}
@@ -141,14 +143,14 @@ export default async function WeekPage({ params }: { params: Params }) {
               <div className="mb-2 flex items-baseline justify-between">
                 <div className="flex items-baseline gap-2">
                   <span
-                    className={`text-xs font-semibold uppercase tracking-wider ${today ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-500"}`}
+                    className={`text-xs font-semibold uppercase tracking-wider ${isDayToday ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-500"}`}
                   >
                     {fmtHari(d)}
                   </span>
                   <span className="text-xs text-zinc-500">{fmtTanggalPendek(d)}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  {today ? (
+                  {isDayToday ? (
                     <span className="rounded-full bg-zinc-900 px-2 py-0.5 text-[10px] font-medium text-white dark:bg-white dark:text-zinc-900">
                       Hari ini
                     </span>

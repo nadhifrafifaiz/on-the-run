@@ -9,6 +9,18 @@ export function toIsoDate(d: Date): IsoDate {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+// Today's date in a specific IANA timezone (e.g. "Asia/Jakarta").
+// Use for anything server-side that needs "today" as the user experiences it —
+// Vercel functions run in UTC, so `toIsoDate(new Date())` returns UTC date.
+export function todayInTz(tz: string): IsoDate {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
 export function fromIsoDate(iso: IsoDate): Date {
   const [y, m, d] = iso.split("-").map(Number);
   return new Date(y, m - 1, d);
